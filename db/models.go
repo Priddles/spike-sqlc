@@ -5,11 +5,12 @@
 package db
 
 import (
+	"foo/ewkb"
 	"github.com/google/uuid"
 )
 
 type Foo struct {
-	ID       uuid.UUID   `json:"id"`
-	Area     interface{} `json:"area"`
-	Location interface{} `json:"location"`
+	ID       uuid.UUID  `db:"id" json:"id"`
+	Area     ewkb.Any   `db:"area" json:"area"`
+	Location ewkb.Point `db:"location" json:"location"`
 }

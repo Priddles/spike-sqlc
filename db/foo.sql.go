@@ -11,8 +11,31 @@ import (
 	"github.com/google/uuid"
 )
 
+const createFoo = `-- name: CreateFoo :one
+INSERT INTO foo (
+    id, location
+) VALUES (
+    $1, ST_GeomFromEWKB($2)
+)
+RETURNING id, area, location
+`
+
+type CreateFooParams struct {
+	ID       uuid.UUID   `db:"id" json:"id"`
+	Location interface{} `db:"location" json:"location"`
+}
+
+func (q *Queries) CreateFoo(ctx context.Context, arg CreateFooParams) (Foo, error) {
+	row := q.db.QueryRow(ctx, createFoo, arg.ID, arg.Location)
+	var i Foo
+	err := row.Scan(&i.ID, &i.Area, &i.Location)
+	return i, err
+}
+
 const getFoo = `-- name: GetFoo :one
-SELECT id, area, location FROM foo WHERE id = $1 LIMIT 1
+SELECT id, area, location FROM foo
+WHERE id = $1
+LIMIT 1
 `
 
 func (q *Queries) GetFoo(ctx context.Context, id uuid.UUID) (Foo, error) {

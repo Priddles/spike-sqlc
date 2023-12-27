@@ -1,4 +1,15 @@
 version: "2"
+overrides:
+  go:
+    overrides:
+      - db_type: "uuid"
+        go_type: "github.com/google/uuid.UUID"
+      - db_type: "geometry"
+        go_type: "foo/ewkb.Any"
+        nullable: true
+      - db_type: "geometry"
+        go_type: "foo/ewkb.Any"
+        nullable: false
 sql:
   - engine: "postgresql"
     queries: "./queries"
@@ -8,31 +19,11 @@ sql:
         package: "db"
         out: "db"
         sql_package: "pgx/v5"
+        emit_db_tags: true
+        emit_empty_slices: true
         emit_json_tags: true
+        emit_pointers_for_null_types: true
+        json_tags_case_style: camel
         overrides:
-          - db_type: "uuid"
-            go_type: "github.com/google/uuid.UUID"
-          - db_type: "geometry"
-            go_type: "github.com/paulmach/orb.Point"
-    # gen:
-    #   go:
-    #     emit_db_tags: true
-    #     emit_empty_slices: true
-    #     emit_json_tags: true
-    #     emit_pointers_for_null_types: true
-    #     json_tags_case_style: camel
-    #     output_files_suffix: gen
-    #     query_parameter_limit: 0
-    #     overrides:
-    #       - db_type: "uuid"
-    #         go_type:
-    #           import: "github.com/google/uuid"
-    #           type: "UUID"
-    #       - db_type: "geometry"
-    #         go_type:
-    #           import: "github.com/paulmach/orb"
-    #           type: "Point"
-    #       - db_type: "geometry"
-    #         go_type:
-    #           import: "github.com/twpayne/go-geom"
-    #           type: "MultiPolygon"
+          - column: "foo.location"
+            go_type: "foo/ewkb.Point"
