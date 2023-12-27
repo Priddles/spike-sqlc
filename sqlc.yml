@@ -1,15 +1,5 @@
 version: "2"
-overrides:
-  go:
-    overrides:
-      - db_type: "uuid"
-        go_type: "github.com/google/uuid.UUID"
-      - db_type: "geometry"
-        go_type: "foo/ewkb.Any"
-        nullable: true
-      - db_type: "geometry"
-        go_type: "foo/ewkb.Any"
-        nullable: false
+
 sql:
   - engine: "postgresql"
     queries: "./queries"
@@ -24,6 +14,130 @@ sql:
         emit_json_tags: true
         emit_pointers_for_null_types: true
         json_tags_case_style: camel
-        overrides:
-          - column: "foo.location"
-            go_type: "foo/ewkb.Point"
+
+overrides:
+  go:
+    overrides:
+      # General
+      - db_type: "uuid"
+        go_type: "github.com/google/uuid.UUID"
+
+      # PostGIS default
+      - db_type: "geometry"
+        go_type: "foo/ewkb.Any"
+        nullable: true
+      - db_type: "geometry"
+        go_type: "foo/ewkb.Any"
+        nullable: false
+
+      # PostGIS custom geometry domains
+      - db_type: "geom_any"
+        go_type: "foo/ewkb.Any"
+        nullable: true
+      - db_type: "geom_any"
+        go_type: "foo/ewkb.Any"
+        nullable: false
+      - db_type: "geom_bound"
+        go_type: "foo/ewkb.Bound"
+        nullable: true
+      - db_type: "geom_bound"
+        go_type: "foo/ewkb.Bound"
+        nullable: false
+      - db_type: "geom_collection"
+        go_type: "foo/ewkb.Collection"
+        nullable: true
+      - db_type: "geom_collection"
+        go_type: "foo/ewkb.Collection"
+        nullable: false
+      - db_type: "geom_linestring"
+        go_type: "foo/ewkb.LineString"
+        nullable: true
+      - db_type: "geom_linestring"
+        go_type: "foo/ewkb.LineString"
+        nullable: false
+      - db_type: "geom_multilinestring"
+        go_type: "foo/ewkb.MultiLineString"
+        nullable: true
+      - db_type: "geom_multilinestring"
+        go_type: "foo/ewkb.MultiLineString"
+        nullable: false
+      - db_type: "geom_point"
+        go_type: "foo/ewkb.Point"
+        nullable: true
+      - db_type: "geom_point"
+        go_type: "foo/ewkb.Point"
+        nullable: false
+      - db_type: "geom_multipoint"
+        go_type: "foo/ewkb.MultiPoint"
+        nullable: true
+      - db_type: "geom_multipoint"
+        go_type: "foo/ewkb.MultiPoint"
+        nullable: false
+      - db_type: "geom_polygon"
+        go_type: "foo/ewkb.Polygon"
+        nullable: true
+      - db_type: "geom_polygon"
+        go_type: "foo/ewkb.Polygon"
+        nullable: false
+      - db_type: "geom_multipolygon"
+        go_type: "foo/ewkb.MultiPolygon"
+        nullable: true
+      - db_type: "geom_multipolygon"
+        go_type: "foo/ewkb.MultiPolygon"
+        nullable: false
+
+      # PostGIS custom geography domains
+      - db_type: "geog_any"
+        go_type: "foo/ewkb.Any"
+        nullable: true
+      - db_type: "geog_any"
+        go_type: "foo/ewkb.Any"
+        nullable: false
+      - db_type: "geog_bound"
+        go_type: "foo/ewkb.Bound"
+        nullable: true
+      - db_type: "geog_bound"
+        go_type: "foo/ewkb.Bound"
+        nullable: false
+      - db_type: "geog_collection"
+        go_type: "foo/ewkb.Collection"
+        nullable: true
+      - db_type: "geog_collection"
+        go_type: "foo/ewkb.Collection"
+        nullable: false
+      - db_type: "geog_linestring"
+        go_type: "foo/ewkb.LineString"
+        nullable: true
+      - db_type: "geog_linestring"
+        go_type: "foo/ewkb.LineString"
+        nullable: false
+      - db_type: "geog_multilinestring"
+        go_type: "foo/ewkb.MultiLineString"
+        nullable: true
+      - db_type: "geog_multilinestring"
+        go_type: "foo/ewkb.MultiLineString"
+        nullable: false
+      - db_type: "geog_point"
+        go_type: "foo/ewkb.Point"
+        nullable: true
+      - db_type: "geog_point"
+        go_type: "foo/ewkb.Point"
+        nullable: false
+      - db_type: "geog_multipoint"
+        go_type: "foo/ewkb.MultiPoint"
+        nullable: true
+      - db_type: "geog_multipoint"
+        go_type: "foo/ewkb.MultiPoint"
+        nullable: false
+      - db_type: "geog_polygon"
+        go_type: "foo/ewkb.Polygon"
+        nullable: true
+      - db_type: "geog_polygon"
+        go_type: "foo/ewkb.Polygon"
+        nullable: false
+      - db_type: "geog_multipolygon"
+        go_type: "foo/ewkb.MultiPolygon"
+        nullable: true
+      - db_type: "geog_multipolygon"
+        go_type: "foo/ewkb.MultiPolygon"
+        nullable: false

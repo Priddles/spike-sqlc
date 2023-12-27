@@ -21,6 +21,14 @@ type Geometry[T orb.Geometry] struct {
 	Valid bool
 }
 
+func New[T orb.Geometry](geom T, srid int) Geometry[T] {
+	return Geometry[T]{
+		SRID:  srid,
+		Geom:  geom,
+		Valid: true,
+	}
+}
+
 func (g *Geometry[T]) Scan(x any) error {
 	// If string, try decode to bytes.
 	if str, ok := x.(string); ok {
@@ -49,7 +57,7 @@ func (g *Geometry[T]) Scan(x any) error {
 
 func (g Geometry[T]) Value() (driver.Value, error) {
 	if g.Valid {
-		return ewkb.Value(g.Geom, g.SRID).Value()
+		return ewkb.MarshalToHex(g.Geom, g.SRID)
 	}
 
 	return nil, nil

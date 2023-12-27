@@ -8,6 +8,7 @@ package db
 import (
 	"context"
 
+	"foo/ewkb"
 	"github.com/google/uuid"
 )
 
@@ -15,14 +16,14 @@ const createFoo = `-- name: CreateFoo :one
 INSERT INTO foo (
     id, location
 ) VALUES (
-    $1, ST_GeomFromEWKB($2)
+    $1, $2
 )
 RETURNING id, area, location
 `
 
 type CreateFooParams struct {
-	ID       uuid.UUID   `db:"id" json:"id"`
-	Location interface{} `db:"location" json:"location"`
+	ID       uuid.UUID  `db:"id" json:"id"`
+	Location ewkb.Point `db:"location" json:"location"`
 }
 
 func (q *Queries) CreateFoo(ctx context.Context, arg CreateFooParams) (Foo, error) {
@@ -46,19 +47,34 @@ func (q *Queries) GetFoo(ctx context.Context, id uuid.UUID) (Foo, error) {
 }
 
 const listFoos = `-- name: ListFoos :many
-SELECT id, area, location FROM foo
-WHERE location && ST_GeomFromEWKB($1)
+SELECT
+    id,
+    area,
+    (CASE WHEN $1::boolean THEN location ELSE null END)::geom_point as location
+FROM foo
+WHERE location && $2::geom_bound
 `
 
-func (q *Queries) ListFoos(ctx context.Context, bound interface{}) ([]Foo, error) {
-	rows, err := q.db.Query(ctx, listFoos, bound)
+type ListFoosParams struct {
+	ReturnGeometry bool       `db:"return_geometry" json:"returnGeometry"`
+	Bound          ewkb.Bound `db:"bound" json:"bound"`
+}
+
+type ListFoosRow struct {
+	ID       uuid.UUID  `db:"id" json:"id"`
+	Area     ewkb.Any   `db:"area" json:"area"`
+	Location ewkb.Point `db:"location" json:"location"`
+}
+
+func (q *Queries) ListFoos(ctx context.Context, arg ListFoosParams) ([]ListFoosRow, error) {
+	rows, err := q.db.Query(ctx, listFoos, arg.ReturnGeometry, arg.Bound)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []Foo{}
+	items := []ListFoosRow{}
 	for rows.Next() {
-		var i Foo
+		var i ListFoosRow
 		if err := rows.Scan(&i.ID, &i.Area, &i.Location); err != nil {
 			return nil, err
 		}

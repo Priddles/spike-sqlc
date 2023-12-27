@@ -5,7 +5,6 @@ import (
 	"foo/db"
 
 	"github.com/google/uuid"
-	"github.com/paulmach/orb"
 )
 
 type Service struct {
@@ -26,6 +25,6 @@ func (f *Service) GetFoo(ctx context.Context, id uuid.UUID) (db.Foo, error) {
 	return f.dbSrv.GetFoo(ctx, id)
 }
 
-func (f *Service) ListFoos(ctx context.Context, bound orb.Bound) ([]db.Foo, error) {
-	return f.dbSrv.ListFoos(ctx, bound)
+func (f *Service) ListFoos(ctx context.Context, params db.ListFoosParams) ([]db.ListFoosRow, error) {
+	return f.dbSrv.ListFoos(ctx, params)
 }
