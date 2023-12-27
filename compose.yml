@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgis/postgis
+    env_file:
+      - .env
+    environment:
+      PGHOST: "" # Ensure this is unset so that psql in container works correctly.
+      PGPORT: 5432 # Override so that database always listens to the same container port.
+    volumes:
+      - "db-data:/var/lib/postgresql/data"
+      - "./schema:/docker-entrypoint-initdb.d:ro"
+    ports:
+      - 127.0.0.1:${PGPORT}:5432
+
+volumes:
+  db-data:
