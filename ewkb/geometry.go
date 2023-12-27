@@ -3,6 +3,7 @@ package ewkb
 import (
 	"database/sql"
 	"database/sql/driver"
+	"encoding/hex"
 
 	"github.com/paulmach/orb"
 	"github.com/paulmach/orb/encoding/ewkb"
@@ -21,6 +22,15 @@ type Geometry[T orb.Geometry] struct {
 }
 
 func (g *Geometry[T]) Scan(x any) error {
+	// If string, try decode to bytes.
+	if str, ok := x.(string); ok {
+		b, err := hex.DecodeString(str)
+		if err == nil {
+			// Was a valid hex string! Replace scan value.
+			x = b
+		}
+	}
+
 	scanner := ewkb.Scanner(&g.Geom)
 
 	err := scanner.Scan(x)
@@ -29,6 +39,7 @@ func (g *Geometry[T]) Scan(x any) error {
 		g.Geom = emptyGeom
 		g.SRID = 0
 		g.Valid = false
+		return err
 	}
 
 	g.SRID = scanner.SRID
@@ -37,7 +48,11 @@ func (g *Geometry[T]) Scan(x any) error {
 }
 
 func (g Geometry[T]) Value() (driver.Value, error) {
-	return ewkb.Value(g.Geom, g.SRID).Value()
+	if g.Valid {
+		return ewkb.Value(g.Geom, g.SRID).Value()
+	}
+
+	return nil, nil
 }
 
 // Aliases for use with the SQLC type overrides.

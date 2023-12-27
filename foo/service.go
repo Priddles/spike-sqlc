@@ -8,17 +8,11 @@ import (
 	"github.com/paulmach/orb"
 )
 
-type dbSrv interface {
-	CreateFoo(context.Context, db.CreateFooParams) (db.Foo, error)
-	GetFoo(context.Context, uuid.UUID) (db.Foo, error)
-	ListFoos(context.Context, any) ([]db.Foo, error)
-}
-
 type Service struct {
-	dbSrv dbSrv
+	dbSrv *db.Queries
 }
 
-func New(dbSrv dbSrv) (*Service, error) {
+func New(dbSrv *db.Queries) (*Service, error) {
 	return &Service{
 		dbSrv: dbSrv,
 	}, nil
