@@ -44,3 +44,28 @@ func (q *Queries) GetFoo(ctx context.Context, id uuid.UUID) (Foo, error) {
 	err := row.Scan(&i.ID, &i.Area, &i.Location)
 	return i, err
 }
+
+const listFoos = `-- name: ListFoos :many
+SELECT id, area, location FROM foo
+WHERE location && ST_GeomFromEWKB($1)
+`
+
+func (q *Queries) ListFoos(ctx context.Context, bound interface{}) ([]Foo, error) {
+	rows, err := q.db.Query(ctx, listFoos, bound)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Foo{}
+	for rows.Next() {
+		var i Foo
+		if err := rows.Scan(&i.ID, &i.Area, &i.Location); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
