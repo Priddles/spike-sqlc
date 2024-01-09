@@ -1,3 +1,3 @@
 package main
 
-//go:generate ../sqlc/sqlc generate
+//go:generate sqlc generate

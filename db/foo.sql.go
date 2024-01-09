@@ -13,11 +13,8 @@ import (
 )
 
 const createFoo = `-- name: CreateFoo :one
-INSERT INTO foo (
-    id, location
-) VALUES (
-    $1, $2
-)
+INSERT INTO foo (id, location)
+VALUES ($1, $2)
 RETURNING id, area, location
 `
 
@@ -34,9 +31,7 @@ func (q *Queries) CreateFoo(ctx context.Context, arg CreateFooParams) (Foo, erro
 }
 
 const getFoo = `-- name: GetFoo :one
-SELECT id, area, location FROM foo
-WHERE id = $1
-LIMIT 1
+SELECT id, area, location FROM foo WHERE id = $1 LIMIT 1
 `
 
 func (q *Queries) GetFoo(ctx context.Context, id uuid.UUID) (Foo, error) {
@@ -47,9 +42,8 @@ func (q *Queries) GetFoo(ctx context.Context, id uuid.UUID) (Foo, error) {
 }
 
 const listFoos = `-- name: ListFoos :many
-SELECT
-    id,
-    area,
+SELECT id,
+    (CASE WHEN $1::boolean THEN area ELSE null END)::geom_any as area,
     (CASE WHEN $1::boolean THEN location ELSE null END)::geom_point as location
 FROM foo
 WHERE location && $2::geom_bound
@@ -66,6 +60,9 @@ type ListFoosRow struct {
 	Location ewkb.Point `db:"location" json:"location"`
 }
 
+// The use of the CASE statement to conditionally select the spatial columns confuses sqlc, so type
+// casting is used to inform which Go types should be used in the generated code. Without the type
+// casts, sqlc falls back to interface{}.
 func (q *Queries) ListFoos(ctx context.Context, arg ListFoosParams) ([]ListFoosRow, error) {
 	rows, err := q.db.Query(ctx, listFoos, arg.ReturnGeometry, arg.Bound)
 	if err != nil {

@@ -1,5 +1,10 @@
 CREATE extension IF NOT EXISTS "postgis";
 
+-- Use domains to effectively create type aliases with different geometry and SRID constraints
+-- applied.
+--
+-- These aliases should be used instead of the underlying geometry/geography as sqlc has been
+-- configured to use the corresponding Go types when generating code.
 DO $$
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'geom_any') THEN
